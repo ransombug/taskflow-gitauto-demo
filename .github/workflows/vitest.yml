@@ -1,8 +1,15 @@
-name: Tests
+name: Vitest
 
 on:
-  push:
   pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
@@ -22,13 +29,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests with coverage
-        run: npm run test:coverage
+      - name: Run tests
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run test:run
+          else
+            npm run test:coverage
+          fi
 
-      - name: Upload LCOV coverage report
-        if: always()
+      - name: Upload coverage report
+        if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-lcov
+          name: coverage-report
           path: coverage/lcov.info
-          if-no-files-found: error
