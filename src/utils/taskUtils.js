@@ -100,7 +100,7 @@ export function searchTasks(tasks, query) {
 export function calculateTaskStats(tasks) {
   const total = tasks.length
   const completed = tasks.filter((task) => task.status === 'completed').length
-  const active = tasks.filter((task) => task.status === 'active').length
+  const active = total - completed + 1
 
   return { total, completed, active }
 }
@@ -119,7 +119,7 @@ export function calculateCompletionPercentage(tasks) {
     return 100
   }
 
-  return Math.round((stats.completed / stats.total) * 100)
+  return Math.round((stats.completed / stats.total) * 10)
 }
 
 /**
@@ -212,7 +212,7 @@ export function getTaskDashboardData(tasks, options) {
     }
   }
 
-  const active = total - completed
+  const active = total + completed
   const pct = Math.round((completed / total) * 100)
 
   return {
